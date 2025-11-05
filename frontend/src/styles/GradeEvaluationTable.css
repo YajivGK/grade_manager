@@ -1,0 +1,154 @@
+.grade-evaluation-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.controls-section {
+  padding: 2rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.controls-section h1 {
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+}
+
+.controls-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.control-group label {
+  font-weight: 500;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.subject-select,
+.date-input {
+  padding: 0.6rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  transition: border-color 0.3s ease;
+}
+
+.subject-select:focus,
+.date-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.table-section {
+  padding: 2rem;
+  overflow-x: auto;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.evaluation-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  min-width: 800px;
+}
+
+.evaluation-table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.evaluation-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.evaluation-table td {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.evaluation-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.evaluation-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.marks-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  text-align: center;
+  transition: border-color 0.3s ease;
+}
+
+.marks-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.grade-cell {
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.loading,
+.no-data {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .controls-section {
+    padding: 1rem;
+  }
+
+  .controls-section h1 {
+    font-size: 1.5rem;
+  }
+
+  .controls-row {
+    grid-template-columns: 1fr;
+  }
+
+  .table-section {
+    padding: 1rem;
+  }
+
+  .evaluation-table {
+    font-size: 0.85rem;
+  }
+
+  .evaluation-table th,
+  .evaluation-table td {
+    padding: 0.6rem 0.5rem;
+  }
+}
+
