@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { getCriteria, createCriterion, deleteCriterion } from '../services/api';
 import '../styles/CriteriaManager.css';
 
@@ -9,9 +9,13 @@ const CriteriaManager = ({ subjectId, onCriteriaChange }) => {
   const [newCriterionName, setNewCriterionName] = useState('');
   const [newCriterionMaxScore, setNewCriterionMaxScore] = useState(100);
 
+  const isFetchingRef = useRef(false);
+
   const loadCriteria = useCallback(async () => {
     if (!subjectId) return;
+    if (isFetchingRef.current) return;
     
+    isFetchingRef.current = true;
     setLoading(true);
     try {
       const response = await getCriteria(subjectId);
@@ -20,13 +24,18 @@ const CriteriaManager = ({ subjectId, onCriteriaChange }) => {
       console.error('Error loading criteria:', error);
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
   }, [subjectId]);
 
+  const lastLoadedSubjectRef = useRef(null);
+
   useEffect(() => {
-    if (subjectId) {
-      loadCriteria();
-    }
+    if (!subjectId) return;
+    // Prevent duplicate fetches for the same subject in React.StrictMode (dev)
+    if (lastLoadedSubjectRef.current === subjectId) return;
+    lastLoadedSubjectRef.current = subjectId;
+    loadCriteria();
   }, [subjectId, loadCriteria]);
 
   useEffect(() => {

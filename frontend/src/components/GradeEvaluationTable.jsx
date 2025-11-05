@@ -138,7 +138,9 @@ const GradeEvaluationTable = () => {
     }
   }, [selectedSubject, selectedBatch, searchTerm, evaluationDate, loadStudents, loadExistingEvaluations]);
 
-  const handleCriteriaChange = (newCriteria) => {
+  const handleCriteriaChange = useCallback((newCriteria) => {
+    const same = JSON.stringify(criteria) === JSON.stringify(newCriteria);
+    if (same) return;
     setCriteria(newCriteria);
     // Reset evaluation data when criteria change
     const updatedData = {};
@@ -150,7 +152,7 @@ const GradeEvaluationTable = () => {
       };
     });
     setEvaluationData(updatedData);
-  };
+  }, [students, criteria]);
 
   const handleInternalMarkChange = (studentId, criterionId, value) => {
     setEvaluationData((prev) => ({
