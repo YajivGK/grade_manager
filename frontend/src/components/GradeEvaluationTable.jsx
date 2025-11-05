@@ -82,18 +82,6 @@ const GradeEvaluationTable = () => {
               external_total: updated[evaluation.student_id].external_total || evaluation.external_total || 0,
               attendance_percent: evaluation.attendance_percent,
             };
-
-  const getExistingInternalMark = (studentId, criterionId) => {
-    const ev = existingEvaluations[studentId];
-    if (!ev) return undefined;
-    const src = Array.isArray(ev.internal_marks)
-      ? ev.internal_marks.reduce((acc, item) => {
-          if (item && item.criterion_id != null) acc[item.criterion_id] = item.marks_obtained || 0;
-          return acc;
-        }, {})
-      : (ev.internal_marks || {});
-    return src[criterionId];
-  };
           } else {
             // Initialize with evaluation data
             updated[evaluation.student_id] = {
@@ -200,21 +188,14 @@ const GradeEvaluationTable = () => {
     });
   }, [students, criteria, existingEvaluations]);
 
-  const handleInternalMarkChange = (studentId, criterionId, maxScore, value) => {
-    let num = parseFloat(value);
-    if (Number.isNaN(num)) num = 0;
-    if (num < 0) num = 0;
-    if (maxScore != null) {
-      const max = parseFloat(maxScore);
-      if (!Number.isNaN(max)) num = Math.min(num, max);
-    }
+  const handleInternalMarkChange = (studentId, criterionId, value) => {
     setEvaluationData((prev) => ({
       ...prev,
       [studentId]: {
         ...prev[studentId],
         internal_marks: {
           ...prev[studentId].internal_marks,
-          [criterionId]: num,
+          [criterionId]: parseFloat(value) || 0,
         },
       },
     }));
@@ -358,18 +339,6 @@ const GradeEvaluationTable = () => {
     return Math.round((total + Number.EPSILON) * 100) / 100;
   };
 
-  const getExistingInternalMark = (studentId, criterionId) => {
-    const ev = existingEvaluations[studentId];
-    if (!ev) return undefined;
-    const src = Array.isArray(ev.internal_marks)
-      ? ev.internal_marks.reduce((acc, item) => {
-          if (item && item.criterion_id != null) acc[item.criterion_id] = item.marks_obtained || 0;
-          return acc;
-        }, {})
-      : (ev.internal_marks || {});
-    return src[criterionId];
-  };
-
   return (
     <div className="grade-evaluation-container">
       <div className="controls-section">
@@ -459,16 +428,11 @@ const GradeEvaluationTable = () => {
                             min="0"
                             max={criterion.max_score}
                             step="0.01"
-                            value={
-                              studentData.internal_marks?.[criterion.id] ??
-                              getExistingInternalMark(student.id, criterion.id) ??
-                              ''
-                            }
+                            value={studentData.internal_marks?.[criterion.id] ?? ''}
                             onChange={(e) =>
                               handleInternalMarkChange(
                                 student.id,
                                 criterion.id,
-                                criterion.max_score,
                                 e.target.value
                               )
                             }
@@ -476,6 +440,18 @@ const GradeEvaluationTable = () => {
                           />
                         </td>
                       ))}
+                      <td>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={studentData.external_total ?? ''}
+                          onChange={(e) =>
+                            handleExternalMarkChange(student.id, e.target.value)
+                          }
+                          className="marks-input"
+                        />
+                      </td>
                       <td>
                         <input
                           type="number"
