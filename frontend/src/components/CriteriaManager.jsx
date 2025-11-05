@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getCriteria, createCriterion, deleteCriterion } from '../services/api';
 import '../styles/CriteriaManager.css';
 
@@ -9,15 +9,9 @@ const CriteriaManager = ({ subjectId, onCriteriaChange }) => {
   const [newCriterionName, setNewCriterionName] = useState('');
   const [newCriterionMaxScore, setNewCriterionMaxScore] = useState(100);
 
-  useEffect(() => {
-    if (subjectId) {
-      loadCriteria();
-    }
-  }, [subjectId]);
-
-  const loadCriteria = async () => {
+  const loadCriteria = useCallback(async () => {
     if (!subjectId) return;
-    
+
     setLoading(true);
     try {
       const response = await getCriteria(subjectId);
@@ -30,7 +24,13 @@ const CriteriaManager = ({ subjectId, onCriteriaChange }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [subjectId, onCriteriaChange]);
+
+  useEffect(() => {
+    if (subjectId) {
+      loadCriteria();
+    }
+  }, [subjectId, loadCriteria]);
 
   const handleAddCriterion = async (e) => {
     e.preventDefault();

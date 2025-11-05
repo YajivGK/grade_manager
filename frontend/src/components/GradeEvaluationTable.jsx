@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getStudents, getSubjects, getCriteria, evaluateStudents, getEvaluations } from '../services/api';
 import SearchBar from './SearchBar';
 import BatchSelector from './BatchSelector';
@@ -20,9 +20,112 @@ const GradeEvaluationTable = () => {
   const [evaluationDate, setEvaluationDate] = useState(new Date().toISOString().split('T')[0]);
   const [existingEvaluations, setExistingEvaluations] = useState({});
 
+  const loadSubjects = useCallback(async () => {
+    try {
+      const response = await getSubjects();
+      setSubjects(response.data);
+    } catch (error) {
+      console.error('Error loading subjects:', error);
+    }
+  }, []);
+
   useEffect(() => {
     loadSubjects();
-  }, []);
+  }, [loadSubjects]);
+
+  const loadCriteria = useCallback(async () => {
+    if (!selectedSubject) return;
+    
+    try {
+      const response = await getCriteria(selectedSubject);
+      setCriteria(response.data);
+    } catch (error) {
+      console.error('Error loading criteria:', error);
+    }
+  }, [selectedSubject]);
+
+  const loadExistingEvaluations = useCallback(async () => {
+    if (!selectedSubject || !selectedBatch || !evaluationDate) return;
+    
+    try {
+      const response = await getEvaluations({
+        subject_id: selectedSubject,
+        batch: selectedBatch,
+        evaluation_date: evaluationDate,
+      });
+      
+      // Map evaluations by student_id
+      const evaluationsMap = {};
+      response.data.forEach((evaluation) => {
+        evaluationsMap[evaluation.student_id] = evaluation;
+      });
+      setExistingEvaluations(evaluationsMap);
+      
+      // Restore marks from existing evaluations so they don't disappear
+      setEvaluationData((prev) => {
+        const updated = { ...prev };
+        response.data.forEach((evaluation) => {
+          if (updated[evaluation.student_id]) {
+            // Preserve existing input values but restore from evaluation if needed
+            updated[evaluation.student_id] = {
+              ...updated[evaluation.student_id],
+              internal_marks: updated[evaluation.student_id].internal_marks && Object.keys(updated[evaluation.student_id].internal_marks).length > 0
+                ? updated[evaluation.student_id].internal_marks
+                : evaluation.internal_marks || {},
+              external_total: updated[evaluation.student_id].external_total || evaluation.external_total || 0,
+              attendance_percent: evaluation.attendance_percent,
+            };
+          } else {
+            // Initialize with evaluation data
+            updated[evaluation.student_id] = {
+              internal_marks: evaluation.internal_marks || {},
+              external_total: evaluation.external_total || 0,
+              attendance_percent: evaluation.attendance_percent,
+            };
+          }
+        });
+        return updated;
+      });
+    } catch (error) {
+      console.error('Error loading evaluations:', error);
+    }
+  }, [selectedSubject, selectedBatch, evaluationDate]);
+
+  const loadStudents = useCallback(async () => {
+    if (!selectedSubject) return;
+    
+    setLoading(true);
+    try {
+      const params = {
+        batch: selectedBatch,
+        search: searchTerm || undefined,
+      };
+      const response = await getStudents(params);
+      setStudents(response.data);
+      
+      // Initialize evaluation data for each student, preserving existing data if available
+      setEvaluationData((prev) => {
+        const newData = {};
+        response.data.forEach((student) => {
+          // Preserve existing data if student already has data
+          if (prev[student.id]) {
+            newData[student.id] = prev[student.id];
+          } else {
+            newData[student.id] = {
+              internal_marks: {},
+              external_total: 0,
+              attendance_percent: null,
+            };
+          }
+        });
+        return newData;
+      });
+    } catch (error) {
+      console.error('Error loading students:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedSubject, selectedBatch, searchTerm]);
 
   useEffect(() => {
     if (selectedSubject) {
@@ -32,7 +135,7 @@ const GradeEvaluationTable = () => {
         loadExistingEvaluations();
       }
     }
-  }, [selectedSubject, selectedBatch, searchTerm, evaluationDate]);
+  }, [selectedSubject, selectedBatch, searchTerm, evaluationDate, loadCriteria, loadStudents, loadExistingEvaluations]);
 
   const loadSubjects = async () => {
     try {
