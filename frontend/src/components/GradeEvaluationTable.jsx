@@ -20,6 +20,20 @@ const GradeEvaluationTable = () => {
   const [evaluationDate, setEvaluationDate] = useState(new Date().toISOString().split('T')[0]);
   const [existingEvaluations, setExistingEvaluations] = useState({});
 
+  useEffect(() => {
+    loadSubjects();
+  }, [loadSubjects]);
+
+  useEffect(() => {
+    if (selectedSubject) {
+      loadCriteria();
+      loadStudents();
+      if (selectedBatch && evaluationDate) {
+        loadExistingEvaluations();
+      }
+    }
+  }, [selectedSubject, selectedBatch, searchTerm, evaluationDate, loadCriteria, loadStudents, loadExistingEvaluations]);
+
   const loadSubjects = useCallback(async () => {
     try {
       const response = await getSubjects();
@@ -28,10 +42,6 @@ const GradeEvaluationTable = () => {
       console.error('Error loading subjects:', error);
     }
   }, []);
-
-  useEffect(() => {
-    loadSubjects();
-  }, [loadSubjects]);
 
   const loadCriteria = useCallback(async () => {
     if (!selectedSubject) return;
@@ -126,17 +136,6 @@ const GradeEvaluationTable = () => {
       setLoading(false);
     }
   }, [selectedSubject, selectedBatch, searchTerm]);
-
-  useEffect(() => {
-    if (selectedSubject) {
-      loadCriteria();
-      loadStudents();
-      if (selectedBatch && evaluationDate) {
-        loadExistingEvaluations();
-      }
-    }
-  }, [selectedSubject, selectedBatch, searchTerm, evaluationDate, loadCriteria, loadStudents, loadExistingEvaluations]);
-  }, [selectedSubject, selectedBatch, searchTerm, evaluationDate, loadCriteria, loadStudents, loadExistingEvaluations]);
 
   const handleCriteriaChange = (newCriteria) => {
     setCriteria(newCriteria);
