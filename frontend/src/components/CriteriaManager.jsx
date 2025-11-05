@@ -87,7 +87,7 @@ const CriteriaManager = ({ subjectId, onCriteriaChange }) => {
   return (
     <div className="criteria-manager">
       <div className="criteria-header">
-        <h3>Criteria Management</h3>
+        <h3>Internal Management</h3>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
           className="btn-add-criterion"
