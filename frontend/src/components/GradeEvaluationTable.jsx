@@ -131,13 +131,12 @@ const GradeEvaluationTable = () => {
 
   useEffect(() => {
     if (selectedSubject) {
-      loadCriteria();
       loadStudents();
       if (selectedBatch && evaluationDate) {
         loadExistingEvaluations();
       }
     }
-  }, [selectedSubject, selectedBatch, searchTerm, evaluationDate, loadCriteria, loadStudents, loadExistingEvaluations]);
+  }, [selectedSubject, selectedBatch, searchTerm, evaluationDate, loadStudents, loadExistingEvaluations]);
 
   const handleCriteriaChange = (newCriteria) => {
     setCriteria(newCriteria);

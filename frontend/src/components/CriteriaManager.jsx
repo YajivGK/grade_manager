@@ -16,21 +16,24 @@ const CriteriaManager = ({ subjectId, onCriteriaChange }) => {
     try {
       const response = await getCriteria(subjectId);
       setCriteria(response.data);
-      if (onCriteriaChange) {
-        onCriteriaChange(response.data);
-      }
     } catch (error) {
       console.error('Error loading criteria:', error);
     } finally {
       setLoading(false);
     }
-  }, [subjectId, onCriteriaChange]);
+  }, [subjectId]);
 
   useEffect(() => {
     if (subjectId) {
       loadCriteria();
     }
   }, [subjectId, loadCriteria]);
+
+  useEffect(() => {
+    if (onCriteriaChange && subjectId) {
+      onCriteriaChange(criteria);
+    }
+  }, [criteria, onCriteriaChange, subjectId]);
 
   const handleAddCriterion = async (e) => {
     e.preventDefault();
